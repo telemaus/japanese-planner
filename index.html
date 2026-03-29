@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Genki Planner">
+<meta name="theme-color" content="#0f1117">
+<title>Genki Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --bg2: #181c27;
+  --bg3: #1f2435;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e8e6f0;
+  --text2: #8b8fa8;
+  --text3: #555a70;
+  --green: #2dd4a0;
+  --green-dim: rgba(45,212,160,0.12);
+  --green-dim2: rgba(45,212,160,0.22);
+  --blue: #4f9cf9;
+  --blue-dim: rgba(79,156,249,0.12);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.12);
+  --red: #f56262;
+  --red-dim: rgba(245,98,98,0.12);
+  --pink: #e879b0;
+  --pink-dim: rgba(232,121,176,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 5px;
+  font-size: 16px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 0 80px;
+}
+h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
+
+/* ── NAV TABS ── */
+.tabs {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 680px;
+  display: flex; background: var(--bg2);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+}
+.tab {
+  flex: 1; padding: 12px 4px 14px; text-align: center;
+  cursor: pointer; font-size: 10px; color: var(--text3);
+  font-family: 'DM Sans', sans-serif; font-weight: 500;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  transition: color 0.15s; border: none; background: none;
+}
+.tab svg { display: block; margin: 0 auto 4px; }
+.tab.active { color: var(--green); }
+
+/* ── SCREENS ── */
+.screen { display: none; padding: 20px 16px 0; }
+.screen.active { display: block; }
+
+/* ── HEADER ── */
+.page-header { margin-bottom: 20px; }
+.page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--text); }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* ── WANIKANI CARD ── */
+.wk-card {
+  background: var(--bg2); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 16px;
+  margin-bottom: 16px;
+}
+.wk-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.wk-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.06em; }
+.wk-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.wk-field label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px; }
+.wk-field input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 8px 10px;
+  color: var(--text); font-size: 18px; font-weight: 500; font-family: 'Syne', sans-serif;
+  text-align: center; -moz-appearance: textfield;
+}
+.wk-field input::-webkit-outer-spin-button,
+.wk-field input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.wk-field input:focus { outline: none; border-color: var(--green); }
+
+.apprentice-status {
+  margin-top: 14px; padding: 12px 14px;
+  border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px;
+}
+.apprentice-status.green { background: var(--green-dim); border: 1px solid rgba(45,212,160,0.2); }
+.apprentice-status.amber { background: var(--amber-dim); border: 1px solid rgba(245,166,35,0.2); }
+.apprentice-status.red { background: var(--red-dim); border: 1px solid rgba(245,98,98,0.2); }
+.status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.status-dot.green { background: var(--green); }
+.status-dot.amber { background: var(--amber); }
+.status-dot.red { background: var(--red); }
+.status-text { font-size: 13px; line-height: 1.4; }
+.status-action { font-weight: 500; }
+.status-action.green { color: var(--green); }
+.status-action.amber { color: var(--amber); }
+.status-action.red { color: var(--red); }
+
+/* ── CHAPTER NAV ── */
+.chapter-nav {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg2); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 12px 14px;
+  margin-bottom: 14px;
+}
+.ch-arrow {
+  width: 34px; height: 34px; border-radius: var(--radius-sm);
+  background: var(--bg3); border: 1px solid var(--border2);
+  color: var(--text); font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: background 0.1s;
+}
+.ch-arrow:hover { background: var(--border2); }
+.ch-arrow:disabled { opacity: 0.3; cursor: default; }
+.ch-info { flex: 1; text-align: center; }
+.ch-num { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.ch-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; }
+.ch-focus { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+/* ── WEEK STRIP ── */
+.week-strip {
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px; margin-bottom: 14px;
+}
+.day-pill {
+  background: var(--bg2); border-radius: var(--radius-sm);
+  border: 1px solid var(--border); padding: 7px 4px;
+  text-align: center; cursor: pointer; transition: all 0.1s;
+}
+.day-pill:hover { border-color: var(--border2); }
+.day-pill.active { border-color: var(--green); background: var(--green-dim); }
+.day-pill.complete { border-color: rgba(45,212,160,0.3); background: var(--green-dim); }
+.dp-name { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text3); margin-bottom: 4px; }
+.day-pill.active .dp-name { color: var(--green); }
+.dp-pips { display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; }
+.pip { width: 5px; height: 5px; border-radius: 50%; background: var(--bg3); }
+.pip.done { background: var(--green); }
+.pip.active-pip { background: var(--text3); }
+
+/* ── DAY DETAIL ── */
+.day-label {
+  font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2);
+  margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+}
+.day-progress-text { font-size: 12px; color: var(--text3); font-family: 'DM Sans', sans-serif; font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+.task-list { display: flex; flex-direction: column; gap: 6px; }
+.task-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--bg2); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 13px 13px;
+  cursor: pointer; transition: background 0.1s, border-color 0.1s;
+  -webkit-user-select: none; user-select: none;
+}
+.task-row:active { background: var(--bg3); }
+.task-row.checked { opacity: 0.45; }
+.task-cb {
+  width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
+  border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 1px; background: var(--bg3); transition: all 0.15s;
+}
+.task-row.checked .task-cb { background: var(--green); border-color: var(--green); }
+.task-body { flex: 1; min-width: 0; }
+.task-name { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.3; }
+.task-desc { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.5; }
+.task-tag {
+  font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 99px;
+  flex-shrink: 0; align-self: flex-start; margin-top: 2px; letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tag-wk { background: var(--pink-dim); color: var(--pink); }
+.tag-genki { background: var(--blue-dim); color: var(--blue); }
+.tag-review { background: var(--amber-dim); color: var(--amber); }
+
+.links-section { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+.res-link {
+  font-size: 12px; font-weight: 500; padding: 7px 12px;
+  border-radius: var(--radius-sm); border: 1px solid var(--border2);
+  background: var(--bg2); color: var(--blue);
+  text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+  transition: background 0.1s;
+}
+.res-link:hover, .res-link:active { background: var(--blue-dim); }
+
+/* ── PROGRESS SCREEN ── */
+.progress-grid {
+  display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px;
+  margin-bottom: 16px;
+}
+.stat-box {
+  background: var(--bg2); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 14px;
+}
+.stat-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 700; color: var(--text); }
+.stat-unit { font-size: 13px; color: var(--text3); }
+.stat-lbl { font-size: 11px; color: var(--text2); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.chapter-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 6px;
+  margin-bottom: 16px;
+}
+.ch-box {
+  background: var(--bg2); border-radius: var(--radius-sm);
+  border: 1px solid var(--border); padding: 8px 5px;
+  text-align: center; cursor: pointer; transition: all 0.1s;
+}
+.ch-box:hover { border-color: var(--border2); }
+.ch-box.current { border-color: var(--green); background: var(--green-dim); }
+.ch-box.done-ch { border-color: rgba(45,212,160,0.25); }
+.ch-box-num { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.ch-box-pct { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.ch-box.done-ch .ch-box-pct { color: var(--green); }
+.ch-box.current .ch-box-num { color: var(--green); }
+
+/* ── SETTINGS ── */
+.settings-section { margin-bottom: 20px; }
+.settings-label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.07em; color: var(--text3); margin-bottom: 10px;
+}
+.setting-row {
+  background: var(--bg2); border-radius: var(--radius);
+  border: 1px solid var(--border); padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.setting-row-label { font-size: 14px; color: var(--text); }
+.setting-row-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.action-btn {
+  font-size: 13px; font-weight: 500; padding: 8px 14px;
+  border-radius: var(--radius-sm); border: 1px solid var(--border2);
+  background: var(--bg3); color: var(--text);
+  cursor: pointer; transition: background 0.1s;
+}
+.action-btn:hover { background: var(--border2); }
+.action-btn.danger { color: var(--red); border-color: rgba(245,98,98,0.3); }
+.action-btn.primary { color: var(--green); border-color: rgba(45,212,160,0.3); }
+
+.install-banner {
+  background: var(--green-dim); border: 1px solid rgba(45,212,160,0.25);
+  border-radius: var(--radius); padding: 14px 16px; margin-bottom: 20px;
+}
+.install-banner h3 { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
+.install-banner p { font-size: 12px; color: var(--text2); line-height: 1.6; }
+
+/* ── MISC ── */
+.progress-bar-wrap { background: var(--bg3); border-radius: 99px; height: 4px; overflow: hidden; margin-top: 8px; }
+.progress-bar-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.4s ease; }
+
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+.check-all-row {
+  display: flex; justify-content: flex-end; margin-bottom: 10px;
+}
+.check-all-btn {
+  font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+  padding: 5px 10px; border-radius: var(--radius-xs);
+  border: 1px solid var(--border2); background: var(--bg2); color: var(--text2);
+  cursor: pointer;
+}
+.check-all-btn:active { background: var(--bg3); }
+
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--bg2); border: 1px solid var(--border2); color: var(--text);
+  padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px;
+  opacity: 0; transition: all 0.25s; z-index: 200; white-space: nowrap; pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media (max-width: 380px) {
+  .week-strip { gap: 3px; }
+  .chapter-grid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .task-name { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TODAY SCREEN -->
+<div class="screen active" id="screen-today">
+  <div class="page-header">
+    <div class="page-title syne" id="greeting">おはよう 👋</div>
+    <div class="page-sub" id="today-date"></div>
+  </div>
+
+  <!-- WaniKani tracker -->
+  <div class="wk-card">
+    <div class="wk-top">
+      <span class="wk-title">WaniKani</span>
+      <span style="font-size:11px;color:var(--text3);">update before studying</span>
+    </div>
+    <div class="wk-inputs">
+      <div class="wk-field">
+        <label>Level</label>
+        <input type="number" id="wk-level" min="1" max="60" placeholder="—" oninput="saveWK()">
+      </div>
+      <div class="wk-field">
+        <label>Apprentice</label>
+        <input type="number" id="wk-apprentice" min="0" placeholder="—" oninput="saveWK(); updateWKStatus()">
+      </div>
+    </div>
+    <div class="apprentice-status" id="wk-status" style="display:none"></div>
+  </div>
+
+  <!-- Chapter nav -->
+  <div class="chapter-nav">
+    <button class="ch-arrow" id="ch-prev" onclick="changeChapter(-1)">‹</button>
+    <div class="ch-info">
+      <div class="ch-num" id="ch-num-label">Chapter 1 of 23</div>
+      <div class="ch-name" id="ch-name-label">—</div>
+      <div class="ch-focus" id="ch-focus-label">—</div>
+    </div>
+    <button class="ch-arrow" id="ch-next" onclick="changeChapter(1)">›</button>
+  </div>
+
+  <!-- Week strip -->
+  <div class="week-strip" id="week-strip"></div>
+
+  <!-- Day tasks -->
+  <div class="day-label">
+    <span id="day-label-text">Monday · Day 1</span>
+    <span class="day-progress-text" id="day-progress-text">0 / 5</span>
+  </div>
+  <div class="check-all-row">
+    <button class="check-all-btn" onclick="checkAllDay()">✓ check all</button>
+  </div>
+  <div class="task-list" id="task-list"></div>
+  <div class="links-section" id="links-section"></div>
+</div>
+
+<!-- PROGRESS SCREEN -->
+<div class="screen" id="screen-progress">
+  <div class="page-header">
+    <div class="page-title syne">Progress</div>
+    <div class="page-sub">Your journey to N3</div>
+  </div>
+  <div class="progress-grid" id="progress-grid"></div>
+  <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:10px;">All Chapters</div>
+  <div class="chapter-grid" id="chapter-grid"></div>
+</div>
+
+<!-- SETTINGS SCREEN -->
+<div class="screen" id="screen-settings">
+  <div class="page-header">
+    <div class="page-title syne">Settings</div>
+    <div class="page-sub">Data & device setup</div>
+  </div>
+
+  <div class="install-banner">
+    <h3>Install as app</h3>
+    <p>
+      <strong style="color:var(--text)">iPhone/iPad:</strong> Tap the Share button → "Add to Home Screen"<br>
+      <strong style="color:var(--text)">Android:</strong> Tap ⋮ menu → "Add to Home Screen" or "Install app"<br>
+      <strong style="color:var(--text)">Desktop Chrome:</strong> Click the install icon in the address bar
+    </p>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">Sync between devices</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-row-label">Export progress</div>
+        <div class="setting-row-sub">Save a backup file to share across devices</div>
+      </div>
+      <button class="action-btn primary" onclick="exportData()">Export</button>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-row-label">Import progress</div>
+        <div class="setting-row-sub">Load a previously exported backup</div>
+      </div>
+      <button class="action-btn" onclick="document.getElementById('import-file').click()">Import</button>
+      <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">Resources</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-row-label">Genki Online Drills</div>
+      </div>
+      <a class="action-btn" href="https://sethclydesdale.github.io/genki-study-resources/" target="_blank">Open ↗</a>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-row-label">Genki Self-Study Room</div>
+      </div>
+      <a class="action-btn" href="https://genki3.japantimes.co.jp/en/student/" target="_blank">Open ↗</a>
+    </div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-row-label">WaniKani</div>
+      </div>
+      <a class="action-btn" href="https://www.wanikani.com/dashboard" target="_blank">Open ↗</a>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">Danger zone</div>
+    <div class="setting-row">
+      <div>
+        <div class="setting-row-label">Reset all progress</div>
+        <div class="setting-row-sub">Clears all checkboxes, keeps chapter position</div>
+      </div>
+      <button class="action-btn danger" onclick="resetProgress()">Reset</button>
+    </div>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--text3);padding:10px 0 4px;">Genki Planner · built for Peter · v1.0</div>
+</div>
+
+<!-- TABS -->
+<nav class="tabs">
+  <button class="tab active" onclick="showScreen('today',this)" id="tab-today">
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Today
+  </button>
+  <button class="tab" onclick="showScreen('progress',this)" id="tab-progress">
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Progress
+  </button>
+  <button class="tab" onclick="showScreen('settings',this)" id="tab-settings">
+    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </button>
+</nav>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──
+const CHAPTERS = [
+  null,
+  { title:"New Friends", focus:"Vocabulary + Particles は/の/も" },
+  { title:"Shopping", focus:"Vocabulary + Katakana" },
+  { title:"Making a Date", focus:"Verb masu-form" },
+  { title:"The First Date", focus:"い and な adjectives" },
+  { title:"A Japanese Festival", focus:"Verb て-form" },
+  { title:"Robert's Daily Life", focus:"て-form requests + てから" },
+  { title:"Family Picture", focus:"Counters + たい" },
+  { title:"Barbecue", focus:"Short forms (plain form)" },
+  { title:"Kabuki", focus:"Past tense short forms" },
+  { title:"Winter Vacation", focus:"Comparisons + superlatives" },
+  { title:"After the Vacation", focus:"〜たら conditionals" },
+  { title:"Feeling Ill", focus:"〜ので / potential verbs" },
+  { title:"Tokyo Sightseeing", focus:"Passive forms" },
+  { title:"Valentine's Day", focus:"Causative verbs" },
+  { title:"A Trip to Nagano", focus:"Honorifics intro (〜ます／です)" },
+  { title:"Lost in Shinjuku", focus:"Humble speech forms" },
+  { title:"Grumble, Grumble", focus:"Causative-passive" },
+  { title:"John's Part-Time Job", focus:"ようだ / そうだ / らしい" },
+  { title:"Meeting the Boss", focus:"Keigo (formal speech)" },
+  { title:"Mary's Host Family", focus:"〜ば／なら conditionals" },
+  { title:"Burglar!", focus:"〜ようとする / reported speech" },
+  { title:"Education in Japan", focus:"Complex embedded sentences" },
+  { title:"Finding a Job", focus:"Formal patterns + full review" },
+];
+
+const QUIZLET = {
+  1:  { vocab:"https://quizlet.com/jp/565592882/genki-lesson-1-vocabulary-flash-cards/", kanji:null, conj:null, video:"https://vimeo.com/604440513" },
+  2:  { vocab:"https://quizlet.com/jp/565592929/genki-lesson-2-vocabulary-flash-cards/", kanji:null, conj:null, video:"https://vimeo.com/604448612" },
+  3:  { vocab:"https://quizlet.com/jp/565593012/genki-lesson-3-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565592955/genki-lesson-3-kanji-flash-cards/", conj:"https://quizlet.com/jp/890646626/genki-lesson-3-verb-masu-form-flash-cards/", video:"https://vimeo.com/604449624" },
+  4:  { vocab:"https://quizlet.com/jp/565593526/genki-lesson-4-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593043/genki-lesson-4-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604449900" },
+  5:  { vocab:"https://quizlet.com/jp/565593810/genki-lesson-5-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593788/genki-lesson-5-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593688/genki-lesson-5-1-adjective-present-negative-flash-cards/", video:"https://vimeo.com/604450075" },
+  6:  { vocab:"https://quizlet.com/jp/565593875/genki-lesson-6-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593831/genki-lesson-6-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593852/genki-lesson-6-verb-te-form-flash-cards/", video:"https://vimeo.com/604451084" },
+  7:  { vocab:"https://quizlet.com/jp/565593914/genki-lesson-7-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593894/genki-lesson-7-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604451422" },
+  8:  { vocab:"https://quizlet.com/jp/565594013/genki-lesson-8-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593993/genki-lesson-8-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593938/genki-lesson-8-1-short-form-verb-present-negative-flash-cards/", video:"https://vimeo.com/604451529" },
+  9:  { vocab:"https://quizlet.com/jp/565594263/genki-lesson-9-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594249/genki-lesson-9-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594165/genki-lesson-9-1-short-form-verb-past-affirmative-flash-cards/", video:"https://vimeo.com/604451851" },
+  10: { vocab:"https://quizlet.com/jp/565594313/genki-lesson-10-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594291/genki-lesson-10-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604451942" },
+  11: { vocab:"https://quizlet.com/jp/565594352/genki-lesson-11-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594336/genki-lesson-11-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604452578" },
+  12: { vocab:"https://quizlet.com/jp/565594381/genki-lesson-12-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594367/genki-lesson-12-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604452694" },
+  13: { vocab:"https://quizlet.com/jp/565594636/genki-lesson-13-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594507/genki-lesson-13-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594613/genki-lesson-13-verb-potential-form-flash-cards/", video:"https://vimeo.com/604453030" },
+  14: { vocab:"https://quizlet.com/jp/565594675/genki-lesson-14-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594657/genki-lesson-14-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604453165" },
+  15: { vocab:"https://quizlet.com/jp/565594732/genki-lesson-15-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594697/genki-lesson-15-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594717/genki-lesson-15-verb-volitional-form-flash-cards/", video:"https://vimeo.com/604453472" },
+  16: { vocab:"https://quizlet.com/jp/565594772/genki-lesson-16-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594748/genki-lesson-16-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604453706" },
+  17: { vocab:"https://quizlet.com/jp/565594821/genki-lesson-17-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594800/genki-lesson-17-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454055" },
+  18: { vocab:"https://quizlet.com/jp/565594859/genki-lesson-18-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594842/genki-lesson-18-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454385" },
+  19: { vocab:"https://quizlet.com/jp/565594888/genki-lesson-19-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594872/genki-lesson-19-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454777" },
+  20: { vocab:"https://quizlet.com/jp/565594929/genki-lesson-20-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594909/genki-lesson-20-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454958" },
+  21: { vocab:"https://quizlet.com/jp/565594984/genki-lesson-21-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594945/genki-lesson-21-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594963/genki-lesson-21-verb-passive-form-flash-cards/", video:"https://vimeo.com/604455341" },
+  22: { vocab:"https://quizlet.com/jp/565595034/genki-lesson-22-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565595004/genki-lesson-22-kanji-flash-cards/", conj:"https://quizlet.com/jp/565595024/genki-lesson-22-verb-causative-form-flash-cards/", video:"https://vimeo.com/604455736" },
+  23: { vocab:"https://quizlet.com/jp/565595152/genki-lesson-23-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565595098/genki-lesson-23-kanji-flash-cards/", conj:"https://quizlet.com/jp/565595130/genki-lesson-23-verb-causative-passive-form-flash-cards/", video:"https://vimeo.com/604456016" },
+};
+
+const DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+function getDaySchedule(lesson, dayIdx) {
+  const ql = QUIZLET[lesson] || {};
+  const prev1 = QUIZLET[lesson-1] || {};
+  const prev2 = QUIZLET[lesson-2] || {};
+  const drills = "https://sethclydesdale.github.io/genki-study-resources/lessons-3rd/";
+
+  const wkDaily = (extra) => ({
+    id:"wk0", name:"WaniKani: do all reviews first",
+    desc: extra || "Open WaniKani → clear your full review queue before anything else. Update your Apprentice count above.",
+    tag:"wk"
+  });
+  const wkLesson = { id:"wk1", name:"WaniKani: new lessons (check Apprentice count above)", desc:"0–50 → do 15–20 lessons · 51–100 → do 5–10 lessons · 100+ → skip lessons, reviews only.", tag:"wk" };
+
+  const schedules = [
+    { // Day 0 - Mon
+      label:"Day 1 — Vocabulary",
+      tasks:[
+        wkDaily(),
+        wkLesson,
+        { id:"d0t2", name:"Read the vocabulary list out loud", desc:"Textbook vocab section. Don't try to memorize — just say each word 2× out loud. Exposure only.", tag:"genki" },
+        { id:"d0t3", name:"Watch the chapter dialogue video", desc:"Watch once without subtitles, then once with the book open. What do you catch?", tag:"genki" },
+        { id:"d0t4", name:"Quizlet: vocabulary flashcards", desc:"Study mode first, then flashcards. Spend 20–25 min. Don't worry about perfection.", tag:"review" },
+      ],
+      links:[
+        ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
+        ql.video ? { label:"Dialogue Video →", url:ql.video } : null,
+      ].filter(Boolean),
+    },
+    { // Day 1 - Tue
+      label:"Day 2 — Grammar Point 1",
+      tasks:[
+        wkDaily(),
+        wkLesson,
+        { id:"d1t2", name:"Read Grammar Point 1 in textbook", desc:"Read the explanation slowly. Write 2 example sentences by hand in your notebook — don't type them.", tag:"genki" },
+        { id:"d1t3", name:"Textbook: Practice A", desc:"Fill in Practice A on paper. Check answers right after. Don't move on if you got more than 2 wrong.", tag:"genki" },
+        { id:"d1t4", name:"Re-watch dialogue video, follow with text", desc:"Play the video, follow the dialogue text in the book. Read out loud along with it.", tag:"review" },
+      ],
+      links:[
+        ql.video ? { label:"Dialogue Video →", url:ql.video } : null,
+      ].filter(Boolean),
+    },
+    { // Day 2 - Wed
+      label:"Day 3 — Grammar Points 2 & 3",
+      tasks:[
+        wkDaily(),
+        wkLesson,
+        { id:"d2t2", name:"Read Grammar Points 2 & 3", desc:"Same process: read → write 2 example sentences per grammar point by hand.", tag:"genki" },
+        { id:"d2t3", name:"Textbook: Practice B & C", desc:"Paper only. Check answers immediately after each section.", tag:"genki" },
+        { id:"d2t4", name:"Quizlet: vocab + kanji second pass (15 min)", desc:"Vocab deck again, then kanji deck if available. Mark anything you still miss.", tag:"review" },
+      ],
+      links:[
+        ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
+        ql.kanji ? { label:"Quizlet Kanji →", url:ql.kanji } : null,
+      ].filter(Boolean),
+    },
+    { // Day 3 - Thu
+      label:"Day 4 — Workbook",
+      tasks:[
+        wkDaily("Reviews only today if Apprentice >100. No new lessons."),
+        { id:"d3t1", name:"Workbook pages 1–3", desc:"All exercises. On paper. Check answers after each page, not at the end.", tag:"genki" },
+        { id:"d3t2", name:"Workbook Listen & Read section", desc:"Use OTO Navi audio. Answer workbook questions from what you hear.", tag:"genki" },
+        { id:"d3t3", name:"Shadow the dialogue", desc:"Play dialogue audio (OTO Navi), repeat each sentence 1–2 seconds after it. Out loud. Don't skip this.", tag:"review" },
+        { id:"d3t4", name:"Write: 3 real sentences using this week's grammar", desc:"About your actual life. Use the grammar from this chapter. e.g. 'I eat ramen every day.'", tag:"review" },
+      ],
+      links:[
+        ql.conj ? { label:"Quizlet Conjugation →", url:ql.conj } : null,
+      ].filter(Boolean),
+    },
+    { // Day 4 - Fri
+      label:"Day 5 — Workbook + Drills",
+      tasks:[
+        wkDaily(),
+        wkLesson,
+        { id:"d4t2", name:"Workbook pages 4–6", desc:"Continue workbook. All exercises on paper. Check as you go.", tag:"genki" },
+        { id:"d4t3", name:"Genki Online Drills (Seth Clydesdale)", desc:"Open the Genki Drills site → select this lesson → do all available drills.", tag:"review" },
+        { id:"d4t4", name:"Review vocab from PREVIOUS chapter (Quizlet)", desc:"10 min only. This is critical for retention — old vocab fades fast.", tag:"review" },
+      ],
+      links:[
+        { label:"Genki Drills →", url:drills },
+        prev1.vocab ? { label:"Prev Chapter Vocab →", url:prev1.vocab } : null,
+        prev1.kanji ? { label:"Prev Chapter Kanji →", url:prev1.kanji } : null,
+      ].filter(Boolean),
+    },
+    { // Day 5 - Sat
+      label:"Day 6 — Deep Review",
+      tasks:[
+        wkDaily("Reviews only — no new lessons today. Let items consolidate."),
+        { id:"d5t1", name:"Workbook pages 7–9", desc:"Final workbook pages for this chapter.", tag:"genki" },
+        { id:"d5t2", name:"Quizlet: vocab test mode", desc:"Switch to Test mode. Aim for 80%+. If below 70%, do flashcards again for 10 min.", tag:"review" },
+        { id:"d5t3", name:"Vocab from 2 chapters ago (Quizlet)", desc:"10 min. This is your spaced repetition for long-term memory. Don't skip.", tag:"review" },
+        { id:"d5t4", name:"Speak: re-read full dialogue aloud, no audio", desc:"No audio crutch. Just you reading it out loud. Look up any word you forgot.", tag:"review" },
+      ],
+      links:[
+        ql.vocab ? { label:"This Chapter Vocab →", url:ql.vocab } : null,
+        ql.kanji ? { label:"This Chapter Kanji →", url:ql.kanji } : null,
+        prev2.vocab ? { label:"2 Chapters Ago →", url:prev2.vocab } : null,
+      ].filter(Boolean),
+    },
+    { // Day 6 - Sun
+      label:"Day 7 — Final Check",
+      tasks:[
+        wkDaily("Rest day for WK lessons. Reviews only — let your brain consolidate."),
+        { id:"d6t1", name:"Genki Online Drills: full chapter sweep", desc:"Do ALL drills for this chapter. Every single one.", tag:"review" },
+        { id:"d6t2", name:"Workbook Reading Page", desc:"Do the reading comprehension workbook page. Don't skip.", tag:"genki" },
+        { id:"d6t3", name:"Self-test: grammar from memory", desc:"Close everything. Write the grammar patterns from this week in your notebook. Check after.", tag:"review" },
+        { id:"d6t4", name:"Vocab: last 2 chapters Quizlet (10 min each)", desc:"Keep old material alive. 10 min ch N-1, 10 min ch N-2.", tag:"review" },
+      ],
+      links:[
+        { label:"Genki Drills →", url:drills },
+        { label:"Genki Online →", url:"https://genki3.japantimes.co.jp/en/student/" },
+        prev1.vocab ? { label:"Ch N-1 Vocab →", url:prev1.vocab } : null,
+        prev2.vocab ? { label:"Ch N-2 Vocab →", url:prev2.vocab } : null,
+      ].filter(Boolean),
+    },
+  ];
+  return schedules[dayIdx % 7];
+}
+
+// ── STATE ──
+let state = {
+  lesson: 1,
+  day: 0,
+  wkLevel: null,
+  wkApprentice: null,
+  checked: {},
+};
+
+function load() {
+  try {
+    const saved = localStorage.getItem('genkiPlanner');
+    if (saved) state = JSON.parse(saved);
+  } catch(e) {}
+}
+function save() {
+  try { localStorage.setItem('genkiPlanner', JSON.stringify(state)); } catch(e) {}
+}
+
+function ck(lesson, day, taskId) { return `l${lesson}d${day}_${taskId}`; }
+function isChecked(lesson, day, id) { return !!state.checked[ck(lesson,day,id)]; }
+function toggleTask(lesson, day, id) {
+  state.checked[ck(lesson,day,id)] = !isChecked(lesson,day,id);
+  save(); renderToday();
+}
+function checkAllDay() {
+  const sched = getDaySchedule(state.lesson, state.day);
+  const allDone = sched.tasks.every(t => isChecked(state.lesson, state.day, t.id));
+  sched.tasks.forEach(t => { state.checked[ck(state.lesson, state.day, t.id)] = !allDone; });
+  save(); renderToday();
+}
+
+function getDayProg(lesson, day) {
+  const s = getDaySchedule(lesson, day);
+  const done = s.tasks.filter(t => isChecked(lesson, day, t.id)).length;
+  return { done, total: s.tasks.length };
+}
+function getChapterProg(lesson) {
+  let done=0, total=0;
+  for(let d=0;d<7;d++){ const p=getDayProg(lesson,d); done+=p.done; total+=p.total; }
+  return { done, total };
+}
+
+// ── WANIKANI ──
+function saveWK() {
+  state.wkLevel = parseInt(document.getElementById('wk-level').value) || null;
+  state.wkApprentice = parseInt(document.getElementById('wk-apprentice').value) || null;
+  save();
+}
+function updateWKStatus() {
+  const ap = state.wkApprentice;
+  const el = document.getElementById('wk-status');
+  if (ap === null || isNaN(ap)) { el.style.display='none'; return; }
+  el.style.display = 'flex';
+  let cls, dot, action, detail;
+  if (ap <= 50) {
+    cls='green'; dot='green';
+    action='Do 15–20 new lessons today';
+    detail='Apprentice count is low — great time to push forward.';
+  } else if (ap <= 100) {
+    cls='amber'; dot='amber';
+    action='Do 5–10 new lessons today';
+    detail='Getting busy — add lessons slowly.';
+  } else if (ap <= 150) {
+    cls='red'; dot='red';
+    action='Reviews only — skip new lessons';
+    detail='Apprentice is high. Let items graduate before adding more.';
+  } else {
+    cls='red'; dot='red';
+    action='Reviews only — do not add lessons';
+    detail=`${ap} items in Apprentice. Focus on clearing reviews for a few days.`;
+  }
+  el.className = `apprentice-status ${cls}`;
+  el.innerHTML = `<div class="status-dot ${dot}"></div><div class="status-text"><span class="status-action ${cls}">${action}</span><br><span style="color:var(--text2)">${detail}</span></div>`;
+}
+
+// ── CHAPTER NAV ──
+function changeChapter(dir) {
+  const next = state.lesson + dir;
+  if (next < 1 || next > 23) return;
+  state.lesson = next;
+  state.day = 0;
+  save(); renderToday(); renderProgress();
+}
+
+// ── RENDER TODAY ──
+function renderToday() {
+  const ch = CHAPTERS[state.lesson];
+  document.getElementById('ch-num-label').textContent = `Chapter ${state.lesson} of 23`;
+  document.getElementById('ch-name-label').textContent = `Lesson ${state.lesson}: ${ch.title}`;
+  document.getElementById('ch-focus-label').textContent = ch.focus;
+  document.getElementById('ch-prev').disabled = state.lesson <= 1;
+  document.getElementById('ch-next').disabled = state.lesson >= 23;
+
+  // Week strip
+  const strip = document.getElementById('week-strip');
+  strip.innerHTML = DAY_NAMES.map((d,i) => {
+    const p = getDayProg(state.lesson, i);
+    const isActive = i === state.day;
+    const isComplete = p.done === p.total;
+    const pips = Array.from({length:p.total},(_,pi) => {
+      const done = isChecked(state.lesson,i,getDaySchedule(state.lesson,i).tasks[pi]?.id);
+      return `<div class="pip${done?' done':(!isActive?'':' active-pip')}"></div>`;
+    }).join('');
+    return `<div class="day-pill${isActive?' active':''}${isComplete?' complete':''}" onclick="selectDay(${i})">
+      <div class="dp-name">${d}</div>
+      <div class="dp-pips">${pips}</div>
+    </div>`;
+  }).join('');
+
+  // Day tasks
+  const sched = getDaySchedule(state.lesson, state.day);
+  const dp = getDayProg(state.lesson, state.day);
+  document.getElementById('day-label-text').textContent = `${DAY_NAMES[state.day]} · ${sched.label}`;
+  document.getElementById('day-progress-text').textContent = `${dp.done} / ${dp.total} done`;
+
+  const tagLabel = { wk:'WK', genki:'Genki', review:'Review' };
+  document.getElementById('task-list').innerHTML = sched.tasks.map(t => {
+    const checked = isChecked(state.lesson, state.day, t.id);
+    return `<div class="task-row${checked?' checked':''}" onclick="toggleTask(${state.lesson},${state.day},'${t.id}')">
+      <div class="task-cb">${checked?`<svg width="12" height="10" viewBox="0 0 12 10"><polyline points="1,5 4.5,8.5 11,1" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:''}</div>
+      <div class="task-body">
+        <div class="task-name">${t.name}</div>
+        <div class="task-desc">${t.desc}</div>
+      </div>
+      <span class="task-tag tag-${t.tag}">${tagLabel[t.tag]||t.tag}</span>
+    </div>`;
+  }).join('');
+
+  // Links
+  const linksEl = document.getElementById('links-section');
+  linksEl.innerHTML = sched.links.length
+    ? sched.links.map(l => `<a class="res-link" href="${l.url}" target="_blank"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${l.label}</a>`).join('')
+    : '';
+}
+
+function selectDay(d) { state.day = d; save(); renderToday(); }
+
+// ── RENDER PROGRESS ──
+function renderProgress() {
+  let totalDone=0, totalTasks=0, chapsDone=0;
+  for(let l=1;l<=23;l++){
+    const p=getChapterProg(l);
+    totalDone+=p.done; totalTasks+=p.total;
+    if(p.done===p.total && p.total>0) chapsDone++;
+  }
+  const overall = totalTasks ? Math.round((totalDone/totalTasks)*100) : 0;
+
+  document.getElementById('progress-grid').innerHTML = `
+    <div class="stat-box">
+      <div class="stat-num">${state.lesson}<span class="stat-unit">/23</span></div>
+      <div class="stat-lbl">Current chapter</div>
+      <div class="progress-bar-wrap" style="margin-top:8px"><div class="progress-bar-fill" style="width:${Math.round(state.lesson/23*100)}%"></div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">${overall}<span class="stat-unit">%</span></div>
+      <div class="stat-lbl">Overall progress</div>
+      <div class="progress-bar-wrap" style="margin-top:8px"><div class="progress-bar-fill" style="width:${overall}%"></div></div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">${chapsDone}</div>
+      <div class="stat-lbl">Chapters complete</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num">${state.wkLevel||'—'}</div>
+      <div class="stat-lbl">WaniKani level</div>
+    </div>
+  `;
+
+  document.getElementById('chapter-grid').innerHTML = Array.from({length:23},(_,i)=>{
+    const l=i+1;
+    const p=getChapterProg(l);
+    const pct=p.total?Math.round(p.done/p.total*100):0;
+    const isCurrent=l===state.lesson;
+    const isDone=pct===100;
+    return `<div class="ch-box${isCurrent?' current':''}${isDone?' done-ch':''}" onclick="jumpToChapter(${l})">
+      <div class="ch-box-num">L${l}</div>
+      <div class="ch-box-pct">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function jumpToChapter(l) {
+  state.lesson = l; state.day = 0; save();
+  showScreen('today', document.getElementById('tab-today'));
+  renderToday();
+}
+
+// ── SCREEN NAV ──
+function showScreen(id, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'progress') renderProgress();
+}
+
+// ── EXPORT / IMPORT ──
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'genki-planner-backup.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('Progress exported!');
+}
+function importData(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (imported.lesson && imported.checked !== undefined) {
+        state = imported; save(); renderToday(); renderProgress();
+        showToast('Progress imported!');
+      } else { showToast('Invalid backup file'); }
+    } catch { showToast('Could not read file'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+function resetProgress() {
+  if (!confirm('Clear all checkboxes? This cannot be undone.')) return;
+  state.checked = {}; save(); renderToday(); renderProgress();
+  showToast('Progress cleared');
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── GREETING ──
+function setGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'おはようございます 🌅' : h < 18 ? 'こんにちは 👋' : 'こんばんは 🌙';
+  document.getElementById('greeting').textContent = g;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const now = new Date();
+  document.getElementById('today-date').textContent =
+    `${days[now.getDay()]} ${now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
+}
+
+// ── INIT ──
+load();
+setGreeting();
+document.getElementById('wk-level').value = state.wkLevel || '';
+document.getElementById('wk-apprentice').value = state.wkApprentice || '';
+updateWKStatus();
+renderToday();
+</script>
+</body>
+</html>
