@@ -278,6 +278,30 @@ h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
 }
 .check-all-btn:active { background: var(--bg3); }
 
+.token-input {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 9px 12px;
+  color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif;
+  margin-top: 8px;
+}
+.token-input:focus { outline: none; border-color: var(--green); }
+.token-input::placeholder { color: var(--text3); }
+.cloud-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+}
+.cloud-btn {
+  padding: 10px 8px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border2); background: var(--bg3);
+  color: var(--text); font-size: 13px; font-weight: 500;
+  cursor: pointer; text-align: center; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.cloud-btn:hover { background: var(--border2); }
+.cloud-btn.save { border-color: rgba(45,212,160,0.3); color: var(--green); }
+.cloud-btn.load { border-color: rgba(79,156,249,0.3); color: var(--blue); }
+.cloud-btn:disabled { opacity: 0.4; cursor: default; }
+.cloud-status { font-size: 11px; color: var(--text3); margin-top: 8px; text-align: center; min-height: 16px; }
+
 .toast {
   position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
   background: var(--bg2); border: 1px solid var(--border2); color: var(--text);
@@ -375,18 +399,43 @@ h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
   </div>
 
   <div class="settings-section">
-    <div class="settings-label">Sync between devices</div>
+    <div class="settings-label">Cloud sync · GitHub Gist</div>
+    <div class="setting-row" style="flex-direction:column;align-items:stretch;gap:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="setting-row-label">GitHub token</div>
+          <div class="setting-row-sub">Stored only on this device</div>
+        </div>
+        <button class="action-btn" onclick="showTokenHelp()" style="flex-shrink:0;margin-left:10px;">How? ↗</button>
+      </div>
+      <input class="token-input" id="gh-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" oninput="saveToken()" autocomplete="off" spellcheck="false">
+      <div class="cloud-row">
+        <button class="cloud-btn save" id="btn-save-cloud" onclick="saveToGist()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+          Save to cloud
+        </button>
+        <button class="cloud-btn load" id="btn-load-cloud" onclick="loadFromGist()">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.09"/></svg>
+          Load from cloud
+        </button>
+      </div>
+      <div class="cloud-status" id="cloud-status"></div>
+    </div>
+  </div>
+
+  <div class="settings-section">
+    <div class="settings-label">Local backup</div>
     <div class="setting-row">
       <div>
-        <div class="setting-row-label">Export progress</div>
-        <div class="setting-row-sub">Save a backup file to share across devices</div>
+        <div class="setting-row-label">Export to file</div>
+        <div class="setting-row-sub">Save a local JSON backup</div>
       </div>
       <button class="action-btn primary" onclick="exportData()">Export</button>
     </div>
     <div class="setting-row">
       <div>
-        <div class="setting-row-label">Import progress</div>
-        <div class="setting-row-sub">Load a previously exported backup</div>
+        <div class="setting-row-label">Import from file</div>
+        <div class="setting-row-sub">Restore a local backup</div>
       </div>
       <button class="action-btn" onclick="document.getElementById('import-file').click()">Import</button>
       <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
@@ -425,7 +474,7 @@ h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
       <button class="action-btn danger" onclick="resetProgress()">Reset</button>
     </div>
   </div>
-  <div style="text-align:center;font-size:11px;color:var(--text3);padding:10px 0 4px;">Japanese Planner · built for telemaus · v1.0</div>
+  <div style="text-align:center;font-size:11px;color:var(--text3);padding:10px 0 4px;">Genki Planner · built for Peter · v1.0</div>
 </div>
 
 <!-- TABS -->
@@ -848,6 +897,102 @@ function resetProgress() {
   showToast('Progress cleared');
 }
 
+// ── GITHUB GIST SYNC ──
+const GIST_FILENAME = 'genki-planner-progress.json';
+
+function saveToken() {
+  const token = document.getElementById('gh-token').value.trim();
+  try { localStorage.setItem('genkiGhToken', token); } catch(e) {}
+}
+
+function getToken() {
+  return (document.getElementById('gh-token').value.trim()) ||
+         (localStorage.getItem('genkiGhToken') || '');
+}
+
+function setCloudStatus(msg, color) {
+  const el = document.getElementById('cloud-status');
+  el.textContent = msg;
+  el.style.color = color || 'var(--text3)';
+}
+
+function setBtnsLoading(loading) {
+  document.getElementById('btn-save-cloud').disabled = loading;
+  document.getElementById('btn-load-cloud').disabled = loading;
+}
+
+async function getGistId(token) {
+  const r = await fetch('https://api.github.com/gists', {
+    headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+  });
+  if (!r.ok) throw new Error('Could not fetch gists — check your token');
+  const gists = await r.json();
+  const found = gists.find(g => g.files && g.files[GIST_FILENAME]);
+  return found ? found.id : null;
+}
+
+async function saveToGist() {
+  const token = getToken();
+  if (!token) { setCloudStatus('Paste your GitHub token first', 'var(--red)'); return; }
+  setBtnsLoading(true);
+  setCloudStatus('Saving…', 'var(--text3)');
+  try {
+    const body = { description: 'Genki Planner progress', public: false,
+      files: { [GIST_FILENAME]: { content: JSON.stringify(state, null, 2) } } };
+    const existingId = await getGistId(token);
+    const url = existingId ? `https://api.github.com/gists/${existingId}` : 'https://api.github.com/gists';
+    const method = existingId ? 'PATCH' : 'POST';
+    const r = await fetch(url, {
+      method, headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json', 'Accept': 'application/vnd.github.v3+json' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) throw new Error(`GitHub error: ${r.status}`);
+    const now = new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
+    setCloudStatus(`Saved to cloud at ${now}`, 'var(--green)');
+    showToast('Saved to GitHub Gist ☁');
+  } catch(e) {
+    setCloudStatus(e.message, 'var(--red)');
+    showToast('Save failed — check token');
+  }
+  setBtnsLoading(false);
+}
+
+async function loadFromGist() {
+  const token = getToken();
+  if (!token) { setCloudStatus('Paste your GitHub token first', 'var(--red)'); return; }
+  setBtnsLoading(true);
+  setCloudStatus('Loading…', 'var(--text3)');
+  try {
+    const gistId = await getGistId(token);
+    if (!gistId) { setCloudStatus('No cloud save found — save first', 'var(--amber)'); setBtnsLoading(false); return; }
+    const r = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
+    });
+    if (!r.ok) throw new Error(`GitHub error: ${r.status}`);
+    const gist = await r.json();
+    const content = gist.files[GIST_FILENAME]?.content;
+    if (!content) throw new Error('File not found in gist');
+    const imported = JSON.parse(content);
+    if (!imported.lesson || imported.checked === undefined) throw new Error('Invalid data format');
+    if (!confirm('This will replace your local progress with the cloud version. Continue?')) { setBtnsLoading(false); setCloudStatus('', ''); return; }
+    state = imported; save();
+    document.getElementById('wk-level').value = state.wkLevel || '';
+    document.getElementById('wk-apprentice').value = state.wkApprentice || '';
+    updateWKStatus(); renderToday(); renderProgress();
+    const updated = new Date(gist.updated_at).toLocaleDateString('en-GB', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
+    setCloudStatus(`Loaded · last saved ${updated}`, 'var(--blue)');
+    showToast('Loaded from GitHub Gist ☁');
+  } catch(e) {
+    setCloudStatus(e.message, 'var(--red)');
+    showToast('Load failed — check token');
+  }
+  setBtnsLoading(false);
+}
+
+function showTokenHelp() {
+  window.open('https://github.com/settings/tokens/new?description=Genki+Planner&scopes=gist', '_blank');
+}
+
 // ── TOAST ──
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -873,6 +1018,9 @@ document.getElementById('wk-level').value = state.wkLevel || '';
 document.getElementById('wk-apprentice').value = state.wkApprentice || '';
 updateWKStatus();
 renderToday();
+// restore token
+const savedToken = localStorage.getItem('genkiGhToken');
+if (savedToken) document.getElementById('gh-token').value = savedToken;
 </script>
 </body>
 </html>
