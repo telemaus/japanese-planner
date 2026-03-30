@@ -474,7 +474,7 @@ h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
       <button class="action-btn danger" onclick="resetProgress()">Reset</button>
     </div>
   </div>
-  <div style="text-align:center;font-size:11px;color:var(--text3);padding:10px 0 4px;">Genki Planner · built for telemaus · v1.0</div>
+  <div style="text-align:center;font-size:11px;color:var(--text3);padding:10px 0 4px;">Japanese Planner · built for telemaus · v1.0</div>
 </div>
 
 <!-- TABS -->
@@ -525,29 +525,29 @@ const CHAPTERS = [
 ];
 
 const QUIZLET = {
-  1:  { vocab:"https://quizlet.com/jp/565592882/genki-lesson-1-vocabulary-flash-cards/", kanji:null, conj:null, video:"https://vimeo.com/604440513" },
-  2:  { vocab:"https://quizlet.com/jp/565592929/genki-lesson-2-vocabulary-flash-cards/", kanji:null, conj:null, video:"https://vimeo.com/604448612" },
-  3:  { vocab:"https://quizlet.com/jp/565593012/genki-lesson-3-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565592955/genki-lesson-3-kanji-flash-cards/", conj:"https://quizlet.com/jp/890646626/genki-lesson-3-verb-masu-form-flash-cards/", video:"https://vimeo.com/604449624" },
-  4:  { vocab:"https://quizlet.com/jp/565593526/genki-lesson-4-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593043/genki-lesson-4-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604449900" },
-  5:  { vocab:"https://quizlet.com/jp/565593810/genki-lesson-5-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593788/genki-lesson-5-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593688/genki-lesson-5-1-adjective-present-negative-flash-cards/", video:"https://vimeo.com/604450075" },
-  6:  { vocab:"https://quizlet.com/jp/565593875/genki-lesson-6-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593831/genki-lesson-6-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593852/genki-lesson-6-verb-te-form-flash-cards/", video:"https://vimeo.com/604451084" },
-  7:  { vocab:"https://quizlet.com/jp/565593914/genki-lesson-7-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593894/genki-lesson-7-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604451422" },
-  8:  { vocab:"https://quizlet.com/jp/565594013/genki-lesson-8-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593993/genki-lesson-8-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593938/genki-lesson-8-1-short-form-verb-present-negative-flash-cards/", video:"https://vimeo.com/604451529" },
-  9:  { vocab:"https://quizlet.com/jp/565594263/genki-lesson-9-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594249/genki-lesson-9-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594165/genki-lesson-9-1-short-form-verb-past-affirmative-flash-cards/", video:"https://vimeo.com/604451851" },
-  10: { vocab:"https://quizlet.com/jp/565594313/genki-lesson-10-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594291/genki-lesson-10-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604451942" },
-  11: { vocab:"https://quizlet.com/jp/565594352/genki-lesson-11-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594336/genki-lesson-11-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604452578" },
-  12: { vocab:"https://quizlet.com/jp/565594381/genki-lesson-12-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594367/genki-lesson-12-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604452694" },
-  13: { vocab:"https://quizlet.com/jp/565594636/genki-lesson-13-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594507/genki-lesson-13-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594613/genki-lesson-13-verb-potential-form-flash-cards/", video:"https://vimeo.com/604453030" },
-  14: { vocab:"https://quizlet.com/jp/565594675/genki-lesson-14-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594657/genki-lesson-14-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604453165" },
-  15: { vocab:"https://quizlet.com/jp/565594732/genki-lesson-15-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594697/genki-lesson-15-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594717/genki-lesson-15-verb-volitional-form-flash-cards/", video:"https://vimeo.com/604453472" },
-  16: { vocab:"https://quizlet.com/jp/565594772/genki-lesson-16-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594748/genki-lesson-16-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604453706" },
-  17: { vocab:"https://quizlet.com/jp/565594821/genki-lesson-17-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594800/genki-lesson-17-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454055" },
-  18: { vocab:"https://quizlet.com/jp/565594859/genki-lesson-18-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594842/genki-lesson-18-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454385" },
-  19: { vocab:"https://quizlet.com/jp/565594888/genki-lesson-19-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594872/genki-lesson-19-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454777" },
-  20: { vocab:"https://quizlet.com/jp/565594929/genki-lesson-20-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594909/genki-lesson-20-kanji-flash-cards/", conj:null, video:"https://vimeo.com/604454958" },
-  21: { vocab:"https://quizlet.com/jp/565594984/genki-lesson-21-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594945/genki-lesson-21-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594963/genki-lesson-21-verb-passive-form-flash-cards/", video:"https://vimeo.com/604455341" },
-  22: { vocab:"https://quizlet.com/jp/565595034/genki-lesson-22-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565595004/genki-lesson-22-kanji-flash-cards/", conj:"https://quizlet.com/jp/565595024/genki-lesson-22-verb-causative-form-flash-cards/", video:"https://vimeo.com/604455736" },
-  23: { vocab:"https://quizlet.com/jp/565595152/genki-lesson-23-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565595098/genki-lesson-23-kanji-flash-cards/", conj:"https://quizlet.com/jp/565595130/genki-lesson-23-verb-causative-passive-form-flash-cards/", video:"https://vimeo.com/604456016" },
+  1:  { vocab:"https://quizlet.com/jp/565592882/genki-lesson-1-vocabulary-flash-cards/", kanji:null, conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  2:  { vocab:"https://quizlet.com/jp/565592929/genki-lesson-2-vocabulary-flash-cards/", kanji:null, conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  3:  { vocab:"https://quizlet.com/jp/565593012/genki-lesson-3-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565592955/genki-lesson-3-kanji-flash-cards/", conj:"https://quizlet.com/jp/890646626/genki-lesson-3-verb-masu-form-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  4:  { vocab:"https://quizlet.com/jp/565593526/genki-lesson-4-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593043/genki-lesson-4-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  5:  { vocab:"https://quizlet.com/jp/565593810/genki-lesson-5-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593788/genki-lesson-5-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593688/genki-lesson-5-1-adjective-present-negative-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  6:  { vocab:"https://quizlet.com/jp/565593875/genki-lesson-6-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593831/genki-lesson-6-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593852/genki-lesson-6-verb-te-form-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  7:  { vocab:"https://quizlet.com/jp/565593914/genki-lesson-7-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593894/genki-lesson-7-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  8:  { vocab:"https://quizlet.com/jp/565594013/genki-lesson-8-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565593993/genki-lesson-8-kanji-flash-cards/", conj:"https://quizlet.com/jp/565593938/genki-lesson-8-1-short-form-verb-present-negative-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  9:  { vocab:"https://quizlet.com/jp/565594263/genki-lesson-9-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594249/genki-lesson-9-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594165/genki-lesson-9-1-short-form-verb-past-affirmative-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  10: { vocab:"https://quizlet.com/jp/565594313/genki-lesson-10-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594291/genki-lesson-10-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  11: { vocab:"https://quizlet.com/jp/565594352/genki-lesson-11-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594336/genki-lesson-11-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  12: { vocab:"https://quizlet.com/jp/565594381/genki-lesson-12-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594367/genki-lesson-12-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  13: { vocab:"https://quizlet.com/jp/565594636/genki-lesson-13-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594507/genki-lesson-13-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594613/genki-lesson-13-verb-potential-form-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  14: { vocab:"https://quizlet.com/jp/565594675/genki-lesson-14-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594657/genki-lesson-14-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  15: { vocab:"https://quizlet.com/jp/565594732/genki-lesson-15-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594697/genki-lesson-15-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594717/genki-lesson-15-verb-volitional-form-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  16: { vocab:"https://quizlet.com/jp/565594772/genki-lesson-16-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594748/genki-lesson-16-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  17: { vocab:"https://quizlet.com/jp/565594821/genki-lesson-17-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594800/genki-lesson-17-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  18: { vocab:"https://quizlet.com/jp/565594859/genki-lesson-18-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594842/genki-lesson-18-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  19: { vocab:"https://quizlet.com/jp/565594888/genki-lesson-19-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594872/genki-lesson-19-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  20: { vocab:"https://quizlet.com/jp/565594929/genki-lesson-20-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594909/genki-lesson-20-kanji-flash-cards/", conj:null, video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  21: { vocab:"https://quizlet.com/jp/565594984/genki-lesson-21-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565594945/genki-lesson-21-kanji-flash-cards/", conj:"https://quizlet.com/jp/565594963/genki-lesson-21-verb-passive-form-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  22: { vocab:"https://quizlet.com/jp/565595034/genki-lesson-22-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565595004/genki-lesson-22-kanji-flash-cards/", conj:"https://quizlet.com/jp/565595024/genki-lesson-22-verb-causative-form-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
+  23: { vocab:"https://quizlet.com/jp/565595152/genki-lesson-23-vocabulary-flash-cards/", kanji:"https://quizlet.com/jp/565595098/genki-lesson-23-kanji-flash-cards/", conj:"https://quizlet.com/jp/565595130/genki-lesson-23-verb-causative-passive-form-flash-cards/", video:"https://genki3.japantimes.co.jp/en/student/dialoguevideo.html" },
 };
 
 const DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
@@ -577,7 +577,7 @@ function getDaySchedule(lesson, dayIdx) {
       ],
       links:[
         ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
-        ql.video ? { label:"Dialogue Video →", url:ql.video } : null,
+        ql.video ? { label:"Watch Dialogue →", url:ql.video } : null,
       ].filter(Boolean),
     },
     { // Day 1 - Tue
@@ -590,7 +590,7 @@ function getDaySchedule(lesson, dayIdx) {
         { id:"d1t4", name:"Re-watch dialogue video, follow with text", desc:"Play the video, follow the dialogue text in the book. Read out loud along with it.", tag:"review" },
       ],
       links:[
-        ql.video ? { label:"Dialogue Video →", url:ql.video } : null,
+        ql.video ? { label:"Watch Dialogue →", url:ql.video } : null,
       ].filter(Boolean),
     },
     { // Day 2 - Wed
@@ -681,12 +681,12 @@ let state = {
 
 function load() {
   try {
-    const saved = localStorage.getItem('genkiPlanner');
+    const saved = localStorage.getItem('japanesePlanner');
     if (saved) state = JSON.parse(saved);
   } catch(e) {}
 }
 function save() {
-  try { localStorage.setItem('genkiPlanner', JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem('japanesePlanner', JSON.stringify(state)); } catch(e) {}
 }
 
 function ck(lesson, day, taskId) { return `l${lesson}d${day}_${taskId}`; }
@@ -872,7 +872,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'genki-planner-backup.json'; a.click();
+  a.href = url; a.download = 'japanese-planner-backup.json'; a.click();
   URL.revokeObjectURL(url);
   showToast('Progress exported!');
 }
@@ -898,16 +898,16 @@ function resetProgress() {
 }
 
 // ── GITHUB GIST SYNC ──
-const GIST_FILENAME = 'genki-planner-progress.json';
+const GIST_FILENAME = 'japanese-planner-progress.json';
 
 function saveToken() {
   const token = document.getElementById('gh-token').value.trim();
-  try { localStorage.setItem('genkiGhToken', token); } catch(e) {}
+  try { localStorage.setItem('japaneseGhToken', token); } catch(e) {}
 }
 
 function getToken() {
   return (document.getElementById('gh-token').value.trim()) ||
-         (localStorage.getItem('genkiGhToken') || '');
+         (localStorage.getItem('japaneseGhToken') || '');
 }
 
 function setCloudStatus(msg, color) {
@@ -937,7 +937,7 @@ async function saveToGist() {
   setBtnsLoading(true);
   setCloudStatus('Saving…', 'var(--text3)');
   try {
-    const body = { description: 'Genki Planner progress', public: false,
+    const body = { description: 'Japanese Planner progress', public: false,
       files: { [GIST_FILENAME]: { content: JSON.stringify(state, null, 2) } } };
     const existingId = await getGistId(token);
     const url = existingId ? `https://api.github.com/gists/${existingId}` : 'https://api.github.com/gists';
@@ -1019,7 +1019,7 @@ document.getElementById('wk-apprentice').value = state.wkApprentice || '';
 updateWKStatus();
 renderToday();
 // restore token
-const savedToken = localStorage.getItem('genkiGhToken');
+const savedToken = localStorage.getItem('japaneseGhToken');
 if (savedToken) document.getElementById('gh-token').value = savedToken;
 </script>
 </body>
