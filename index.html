@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Genki Planner">
+<meta name="apple-mobile-web-app-title" content="Japanese Planner">
 <meta name="theme-color" content="#0f1117">
-<title>Genki Planner</title>
+<title>Japanese Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -474,7 +474,7 @@ h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
       <button class="action-btn danger" onclick="resetProgress()">Reset</button>
     </div>
   </div>
-  <div style="text-align:center;font-size:11px;color:var(--text3);padding:10px 0 4px;">Genki Planner · built for Peter · v1.0</div>
+  <div style="text-align:center;font-size:11px;color:var(--text3);padding:10px 0 4px;">Japanese Planner · built for Peter · v1.0</div>
 </div>
 
 <!-- TABS -->
@@ -681,12 +681,12 @@ let state = {
 
 function load() {
   try {
-    const saved = localStorage.getItem('genkiPlanner');
+    const saved = localStorage.getItem('japanesePlanner');
     if (saved) state = JSON.parse(saved);
   } catch(e) {}
 }
 function save() {
-  try { localStorage.setItem('genkiPlanner', JSON.stringify(state)); } catch(e) {}
+  try { localStorage.setItem('japanesePlanner', JSON.stringify(state)); } catch(e) {}
 }
 
 function ck(lesson, day, taskId) { return `l${lesson}d${day}_${taskId}`; }
@@ -872,7 +872,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'genki-planner-backup.json'; a.click();
+  a.href = url; a.download = 'japanese-planner-backup.json'; a.click();
   URL.revokeObjectURL(url);
   showToast('Progress exported!');
 }
@@ -898,16 +898,16 @@ function resetProgress() {
 }
 
 // ── GITHUB GIST SYNC ──
-const GIST_FILENAME = 'genki-planner-progress.json';
+const GIST_FILENAME = 'japanese-planner-progress.json';
 
 function saveToken() {
   const token = document.getElementById('gh-token').value.trim();
-  try { localStorage.setItem('genkiGhToken', token); } catch(e) {}
+  try { localStorage.setItem('japaneseGhToken', token); } catch(e) {}
 }
 
 function getToken() {
   return (document.getElementById('gh-token').value.trim()) ||
-         (localStorage.getItem('genkiGhToken') || '');
+         (localStorage.getItem('japaneseGhToken') || '');
 }
 
 function setCloudStatus(msg, color) {
@@ -937,7 +937,7 @@ async function saveToGist() {
   setBtnsLoading(true);
   setCloudStatus('Saving…', 'var(--text3)');
   try {
-    const body = { description: 'Genki Planner progress', public: false,
+    const body = { description: 'Japanese Planner progress', public: false,
       files: { [GIST_FILENAME]: { content: JSON.stringify(state, null, 2) } } };
     const existingId = await getGistId(token);
     const url = existingId ? `https://api.github.com/gists/${existingId}` : 'https://api.github.com/gists';
@@ -1019,7 +1019,7 @@ document.getElementById('wk-apprentice').value = state.wkApprentice || '';
 updateWKStatus();
 renderToday();
 // restore token
-const savedToken = localStorage.getItem('genkiGhToken');
+const savedToken = localStorage.getItem('japaneseGhToken');
 if (savedToken) document.getElementById('gh-token').value = savedToken;
 </script>
 </body>
