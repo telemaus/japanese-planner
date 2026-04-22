@@ -567,13 +567,15 @@ function getDaySchedule(lesson, dayIdx) {
 
   const schedules = [
     { // Day 0 - Mon
-      label:"Day 1 — Vocabulary",
+      label:"Day 1 — Vocab + Grammar 1st third",
       tasks:[
         wkDaily(),
         wkLesson,
         { id:"d0t2", name:"Read the vocabulary list out loud", desc:"Textbook vocab section. Don't try to memorize — just say each word 2× out loud. Exposure only.", tag:"genki" },
         { id:"d0t3", name:"Watch the chapter dialogue video", desc:"Watch once without subtitles, then once with the book open. What do you catch?", tag:"genki" },
-        { id:"d0t4", name:"Quizlet: Learn mode (first exposure)", desc:"Use Learn mode — it introduces cards one by one, mixes multiple choice and typing, adapts to what you get wrong. Perfect for seeing vocab for the first time. Spend 20–25 min.", tag:"review" },
+        { id:"d0t4", name:"Read grammar points — first ~30%", desc:"Count the grammar points in this chapter, read the first third. For each: read the explanation, write 1 example sentence by hand.", tag:"genki" },
+        { id:"d0t5", name:"Textbook: practices for first ~30% grammar points", desc:"Do the Practice exercises matching what you just read. On paper. Check answers right after.", tag:"genki" },
+        { id:"d0t6", name:"Quizlet: Learn mode (first exposure)", desc:"Use Learn mode — introduces cards one by one, mixes multiple choice and typing. Perfect for seeing vocab for the first time. 15–20 min.", tag:"review" },
       ],
       links:[
         ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
@@ -581,14 +583,14 @@ function getDaySchedule(lesson, dayIdx) {
       ].filter(Boolean),
     },
     { // Day 1 - Tue
-      label:"Day 2 — Grammar Point 1",
+      label:"Day 2 — Grammar 2nd third",
       tasks:[
         wkDaily(),
         wkLesson,
-        { id:"d1t2", name:"Read Grammar Points — first half", desc:"Split this chapter's grammar points in half. Today: read the first half. For each point: read the explanation, write 2 example sentences by hand. Don't type them.", tag:"genki" },
-        { id:"d1t3", name:"Textbook: Practices for first half grammar points", desc:"Do the Practice exercises that match the grammar points you just read. On paper. Check answers right after. Got more than 2 wrong? Re-read the grammar explanation above it, then continue anyway.", tag:"genki" },
+        { id:"d1t2", name:"Read grammar points — middle ~30%", desc:"Continue where you left off. Read the next third of grammar points. Write 1 example sentence per point by hand.", tag:"genki" },
+        { id:"d1t3", name:"Textbook: practices for middle ~30% grammar points", desc:"Do the matching Practice exercises. On paper. Check answers right after each section.", tag:"genki" },
         { id:"d1t4", name:"Re-watch dialogue video, follow with text", desc:"Play the video, follow the dialogue text in the book. Read out loud along with it.", tag:"review" },
-        { id:"d1t5", name:"Quizlet: Flashcards mode — vocab (10 min)", desc:"Quick pass through the vocab deck. You just saw these words today — this cements them. Flip through once, no scoring needed.", tag:"review" },
+        { id:"d1t5", name:"Quizlet: Flashcards mode — vocab (10 min)", desc:"Quick pass through the vocab deck. Flip through once, no scoring. Just reinforcing Day 1 exposure.", tag:"review" },
       ],
       links:[
         ql.video ? { label:"Watch Dialogue →", url:ql.video } : null,
@@ -596,13 +598,13 @@ function getDaySchedule(lesson, dayIdx) {
       ].filter(Boolean),
     },
     { // Day 2 - Wed
-      label:"Day 3 — Grammar Points 2 & 3",
+      label:"Day 3 — Grammar 3rd third",
       tasks:[
         wkDaily(),
         wkLesson,
-        { id:"d2t2", name:"Read Grammar Points — second half", desc:"Today: read the second half of this chapter's grammar points. Same process: read each one → write 2 example sentences by hand.", tag:"genki" },
-        { id:"d2t3", name:"Textbook: Practices for second half grammar points", desc:"Do the Practice exercises that match today's grammar points. Paper only. Check answers immediately after each section.", tag:"genki" },
-        { id:"d2t4", name:"Quizlet: Flashcards mode — vocab + kanji (15 min)", desc:"Use Flashcards mode — flip through yourself, no help. You saw these on Day 1 so now you're testing raw memory. Go through once, mentally note what you struggle with. Then do kanji deck if available.", tag:"review" },
+        { id:"d2t2", name:"Read grammar points — last ~30%", desc:"Final third of grammar points. Same process: read → write 1 example sentence by hand per point.", tag:"genki" },
+        { id:"d2t3", name:"Textbook: practices for last ~30% grammar points", desc:"Do the matching Practice exercises. Paper only. Check answers immediately after each section.", tag:"genki" },
+        { id:"d2t4", name:"Quizlet: Flashcards mode — vocab + kanji (15 min)", desc:"Flashcards mode — flip through yourself, no help. Testing raw memory now. Vocab deck first, then kanji deck if available.", tag:"review" },
       ],
       links:[
         ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
@@ -610,28 +612,26 @@ function getDaySchedule(lesson, dayIdx) {
       ].filter(Boolean),
     },
     { // Day 3 - Thu
-      label:"Day 4 — Workbook",
+      label:"Day 4 — Workbook 1st third",
       tasks:[
         wkDaily("Reviews only today if Apprentice >100. No new lessons."),
-        { id:"d3t1", name:"Workbook pages 1–3", desc:"All exercises. On paper. Check answers after each page, not at the end.", tag:"genki" },
-        { id:"d3t2", name:"Workbook Listen & Read section", desc:"Use OTO Navi audio. Answer workbook questions from what you hear.", tag:"genki" },
-        { id:"d3t3", name:"Shadow the dialogue", desc:"Play dialogue audio (OTO Navi), repeat each sentence 1–2 seconds after it. Out loud. Don't skip this.", tag:"review" },
-        { id:"d3t4", name:"Write: 3 real sentences using this week's grammar", desc:"About your actual life. Use the grammar from this chapter. e.g. 'I eat ramen every day.'", tag:"review" },
-        { id:"d3t5", name:"Quizlet: Flashcards mode — vocab (10 min)", desc:"Midweek check-in. Flip through the vocab deck once. You've been using these words in exercises — see what's sticking.", tag:"review" },
+        { id:"d3t1", name:"Workbook — first ~30% of exercises", desc:"Do roughly the first third of workbook exercises for this chapter. On paper. Check answers after each page.", tag:"genki" },
+        { id:"d3t2", name:"Shadow the dialogue", desc:"Play dialogue audio (OTO Navi), repeat each sentence 1–2 seconds after it. Out loud.", tag:"review" },
+        { id:"d3t3", name:"Quizlet: Flashcards mode — vocab (10 min)", desc:"Midweek check-in. Flip through the vocab deck once. See what's sticking after 3 days.", tag:"review" },
       ],
       links:[
-        ql.conj ? { label:"Quizlet Conjugation →", url:ql.conj } : null,
         ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
+        ql.conj ? { label:"Quizlet Conjugation →", url:ql.conj } : null,
       ].filter(Boolean),
     },
     { // Day 4 - Fri
-      label:"Day 5 — Workbook + Drills",
+      label:"Day 5 — Workbook 2nd third",
       tasks:[
         wkDaily(),
         wkLesson,
-        { id:"d4t2", name:"Workbook pages 4–6", desc:"Continue workbook. All exercises on paper. Check as you go.", tag:"genki" },
-        { id:"d4t3", name:"Quizlet: Test mode — previous chapter vocab", desc:"Open the previous chapter's Quizlet deck → Test mode → max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. This is how you find out what actually stuck.", tag:"review" },
-        { id:"d4t4", name:"Quizlet: Flashcards mode — current chapter vocab (10 min)", desc:"Quick flip through this chapter's vocab deck. You're halfway through the week — see what's fading.", tag:"review" },
+        { id:"d4t1", name:"Workbook — middle ~30% of exercises", desc:"Continue the workbook. Next third of exercises. On paper. Check as you go.", tag:"genki" },
+        { id:"d4t3", name:"Quizlet: Test mode — previous chapter vocab", desc:"Previous chapter's Quizlet deck → Test mode → max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF.", tag:"review" },
+        { id:"d4t4", name:"Quizlet: Flashcards mode — current chapter vocab (10 min)", desc:"Quick flip through this chapter's vocab. See what's fading by end of week.", tag:"review" },
       ],
       links:[
         prev1.vocab ? { label:"Prev Chapter Vocab →", url:prev1.vocab } : null,
@@ -641,13 +641,13 @@ function getDaySchedule(lesson, dayIdx) {
       ].filter(Boolean),
     },
     { // Day 5 - Sat
-      label:"Day 6 — Deep Review",
+      label:"Day 6 — Workbook 3rd third + Review",
       tasks:[
         wkDaily("Reviews only — no new lessons today. Let items consolidate."),
-        { id:"d5t1", name:"Workbook pages 7–9", desc:"Final workbook pages for this chapter.", tag:"genki" },
-        { id:"d5t2", name:"Quizlet: Test mode — this chapter vocab + kanji", desc:"Test mode settings: max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. Aim for 80%+. Below 70%? Do Flashcards for 10 min then retest.", tag:"review" },
-        { id:"d5t3", name:"Quizlet: Flashcards mode — 2 chapters ago (10 min)", desc:"Flashcards mode only — quick and low friction. You just want to keep old vocab warm, not do a full session. Don't skip this, old vocab fades fast.", tag:"review" },
-        { id:"d5t4", name:"Speak: re-read full dialogue aloud, no audio", desc:"No audio crutch. Just you reading it out loud. Look up any word you forgot.", tag:"review" },
+        { id:"d5t1", name:"Workbook — last ~30% of exercises", desc:"Final workbook exercises for this chapter, including the reading page. On paper.", tag:"genki" },
+        { id:"d5t2", name:"Quizlet: Test mode — this chapter vocab + kanji", desc:"Test mode: max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. Aim for 80%+. Below 70%? Do Flashcards for 10 min then retest.", tag:"review" },
+        { id:"d5t3", name:"Quizlet: Flashcards mode — 2 chapters ago (10 min)", desc:"Quick flip through ch N-2 vocab. Low friction — just keeping old material alive.", tag:"review" },
+        { id:"d5t4", name:"Speak: re-read full dialogue aloud, no audio", desc:"No audio. Just you reading out loud. Look up anything you forgot.", tag:"review" },
       ],
       links:[
         ql.vocab ? { label:"This Chapter Vocab →", url:ql.vocab } : null,
@@ -660,9 +660,7 @@ function getDaySchedule(lesson, dayIdx) {
       tasks:[
         wkDaily("Rest day for WK lessons. Reviews only — let your brain consolidate."),
         { id:"d6t1", name:"Quizlet: Test mode — this chapter full sweep", desc:"Test mode: max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. Do vocab deck, then kanji deck if available, then conjugation deck if available.", tag:"review" },
-        { id:"d6t2", name:"Workbook Reading Page", desc:"Do the reading comprehension workbook page. Don't skip.", tag:"genki" },
-        { id:"d6t3", name:"Self-test: grammar from memory", desc:"Close everything. Write the grammar patterns from this week in your notebook. Check after.", tag:"review" },
-        { id:"d6t4", name:"Quizlet: Flashcards mode — last 2 chapters (10 min each)", desc:"Flashcards mode — quick flip through, no scoring. Just keeping old vocab alive. Ch N-1 for 10 min, Ch N-2 for 10 min.", tag:"review" },
+        { id:"d6t3", name:"Quizlet: Flashcards mode — last 2 chapters (10 min each)", desc:"Flashcards mode — quick flip, no scoring. Ch N-1 for 10 min, Ch N-2 for 10 min. Keeping old vocab alive.", tag:"review" },
       ],
       links:[
         ql.vocab ? { label:"This Chapter Vocab →", url:ql.vocab } : null,
