@@ -135,10 +135,14 @@ h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
 
 /* ── WEEK STRIP ── */
 .week-strip {
-  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 5px; margin-bottom: 14px;
+  display: flex; overflow-x: auto; gap: 5px; margin-bottom: 14px;
+  padding-bottom: 4px; scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
+.week-strip::-webkit-scrollbar { height: 4px; }
+.week-strip::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
 .day-pill {
+  flex: 0 0 44px; scroll-snap-align: center;
   background: var(--bg2); border-radius: var(--radius-sm);
   border: 1px solid var(--border); padding: 7px 4px;
   text-align: center; cursor: pointer; transition: all 0.1s;
@@ -356,8 +360,12 @@ h1,h2,h3,.syne { font-family: 'Syne', sans-serif; }
     <button class="ch-arrow" id="ch-next" onclick="changeChapter(1)">›</button>
   </div>
 
-  <!-- Week strip -->
+  <!-- Day strip -->
   <div class="week-strip" id="week-strip"></div>
+  <div style="display:flex; gap:8px; margin-bottom:14px;">
+    <button class="action-btn" style="flex:1;" onclick="changeDay(-1)">‹ Previous day</button>
+    <button class="action-btn" style="flex:1;" onclick="changeDay(1)">Next day ›</button>
+  </div>
 
   <!-- Day tasks -->
   <div class="day-label">
@@ -552,11 +560,65 @@ const QUIZLET = {
 
 const DAY_NAMES = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 
+// Grammar points and workbook exercise counts per chapter (Genki 1: 1-12 confirmed, 13-23 default fallback)
+const CHAPTER_STRUCTURE = {
+  1:  { grammar:3, workbook:6 },
+  2:  { grammar:7, workbook:7 },
+  3:  { grammar:8, workbook:8 },
+  4:  { grammar:8, workbook:9 },
+  5:  { grammar:6, workbook:9 },
+  6:  { grammar:7, workbook:8 },
+  7:  { grammar:6, workbook:9 },
+  8:  { grammar:8, workbook:9 },
+  9:  { grammar:7, workbook:9 },
+  10: { grammar:7, workbook:8 },
+  11: { grammar:4, workbook:6 },
+  12: { grammar:6, workbook:8 },
+  // Genki 2 (13-23): placeholder until counts confirmed — defaults to 6 grammar / 8 workbook
+  13: { grammar:6, workbook:8 },
+  14: { grammar:6, workbook:8 },
+  15: { grammar:6, workbook:8 },
+  16: { grammar:6, workbook:8 },
+  17: { grammar:6, workbook:8 },
+  18: { grammar:6, workbook:8 },
+  19: { grammar:6, workbook:8 },
+  20: { grammar:6, workbook:8 },
+  21: { grammar:6, workbook:8 },
+  22: { grammar:6, workbook:8 },
+  23: { grammar:6, workbook:8 },
+};
+
+// Build the full list of days for a chapter dynamically
+function buildChapterDays(lesson) {
+  const struct = CHAPTER_STRUCTURE[lesson] || { grammar:6, workbook:8 };
+  const days = [];
+
+  // Day 1: vocab + dialogue + Quizlet Learn
+  days.push({ type:'vocab1' });
+  // Day 2: vocab review + Quizlet Flashcards
+  days.push({ type:'vocab2' });
+  // Grammar days: 1 per grammar point + matching textbook exercise
+  for (let g = 1; g <= struct.grammar; g++) {
+    days.push({ type:'grammar', num:g, total:struct.grammar });
+  }
+  // Workbook days: 1 per workbook exercise
+  for (let w = 1; w <= struct.workbook; w++) {
+    days.push({ type:'workbook', num:w, total:struct.workbook });
+  }
+
+  // Mark every 3rd day with a flashcards add-on, and the last day as the test sweep
+  const lastIdx = days.length - 1;
+  days.forEach((d, idx) => {
+    d.reviewFlashcards = (idx > 1) && ((idx + 1) % 3 === 0) && idx !== lastIdx;
+    d.isLastDay = idx === lastIdx;
+  });
+  return days;
+}
+
 function getDaySchedule(lesson, dayIdx) {
   const ql = QUIZLET[lesson] || {};
   const prev1 = QUIZLET[lesson-1] || {};
   const prev2 = QUIZLET[lesson-2] || {};
-  const drills = "https://genki3.japantimes.co.jp/en/student/";
 
   const wkDaily = (extra) => ({
     id:"wk0", name:"WaniKani: do all reviews first",
@@ -565,113 +627,73 @@ function getDaySchedule(lesson, dayIdx) {
   });
   const wkLesson = { id:"wk1", name:"WaniKani: new lessons (check Apprentice count above)", desc:"0–50 → do 15–20 lessons · 51–100 → do 5–10 lessons · 100+ → skip lessons, reviews only.", tag:"wk" };
 
-  const schedules = [
-    { // Day 0 - Mon
-      label:"Day 1 — Vocab + Grammar 1st third",
-      tasks:[
-        wkDaily(),
-        wkLesson,
-        { id:"d0t2", name:"Read the vocabulary list out loud", desc:"Textbook vocab section. Don't try to memorize — just say each word 2× out loud. Exposure only.", tag:"genki" },
-        { id:"d0t3", name:"Watch the chapter dialogue video", desc:"Watch once without subtitles, then once with the book open. What do you catch?", tag:"genki" },
-        { id:"d0t4", name:"Read grammar points — first ~30%", desc:"Count the grammar points in this chapter, read the first third. For each: read the explanation, write 1 example sentence by hand.", tag:"genki" },
-        { id:"d0t5", name:"Textbook: practices for first ~30% grammar points", desc:"Do the Practice exercises matching what you just read. On paper. Check answers right after.", tag:"genki" },
-        { id:"d0t6", name:"Quizlet: Learn mode (first exposure)", desc:"Use Learn mode — introduces cards one by one, mixes multiple choice and typing. Perfect for seeing vocab for the first time. 15–20 min.", tag:"review" },
-      ],
-      links:[
-        ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
-        ql.video ? { label:"Watch Dialogue →", url:ql.video } : null,
-      ].filter(Boolean),
-    },
-    { // Day 1 - Tue
-      label:"Day 2 — Grammar 2nd third",
-      tasks:[
-        wkDaily(),
-        wkLesson,
-        { id:"d1t2", name:"Read grammar points — middle ~30%", desc:"Continue where you left off. Read the next third of grammar points. Write 1 example sentence per point by hand.", tag:"genki" },
-        { id:"d1t3", name:"Textbook: practices for middle ~30% grammar points", desc:"Do the matching Practice exercises. On paper. Check answers right after each section.", tag:"genki" },
-        { id:"d1t4", name:"Re-watch dialogue video, follow with text", desc:"Play the video, follow the dialogue text in the book. Read out loud along with it.", tag:"review" },
-        { id:"d1t5", name:"Quizlet: Flashcards mode — vocab (10 min)", desc:"Quick pass through the vocab deck. Flip through once, no scoring. Just reinforcing Day 1 exposure.", tag:"review" },
-      ],
-      links:[
-        ql.video ? { label:"Watch Dialogue →", url:ql.video } : null,
-        ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
-      ].filter(Boolean),
-    },
-    { // Day 2 - Wed
-      label:"Day 3 — Grammar 3rd third",
-      tasks:[
-        wkDaily(),
-        wkLesson,
-        { id:"d2t2", name:"Read grammar points — last ~30%", desc:"Final third of grammar points. Same process: read → write 1 example sentence by hand per point.", tag:"genki" },
-        { id:"d2t3", name:"Textbook: practices for last ~30% grammar points", desc:"Do the matching Practice exercises. Paper only. Check answers immediately after each section.", tag:"genki" },
-        { id:"d2t4", name:"Quizlet: Flashcards mode — vocab + kanji (15 min)", desc:"Flashcards mode — flip through yourself, no help. Testing raw memory now. Vocab deck first, then kanji deck if available.", tag:"review" },
-      ],
-      links:[
-        ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
-        ql.kanji ? { label:"Quizlet Kanji →", url:ql.kanji } : null,
-      ].filter(Boolean),
-    },
-    { // Day 3 - Thu
-      label:"Day 4 — Workbook 1st third",
-      tasks:[
-        wkDaily("Reviews only today if Apprentice >100. No new lessons."),
-        { id:"d3t1", name:"Workbook — first ~30% of exercises", desc:"Do roughly the first third of workbook exercises for this chapter. On paper. Check answers after each page.", tag:"genki" },
-        { id:"d3t2", name:"Shadow the dialogue", desc:"Play dialogue audio (OTO Navi), repeat each sentence 1–2 seconds after it. Out loud.", tag:"review" },
-        { id:"d3t3", name:"Quizlet: Flashcards mode — vocab (10 min)", desc:"Midweek check-in. Flip through the vocab deck once. See what's sticking after 3 days.", tag:"review" },
-      ],
-      links:[
-        ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null,
-        ql.conj ? { label:"Quizlet Conjugation →", url:ql.conj } : null,
-      ].filter(Boolean),
-    },
-    { // Day 4 - Fri
-      label:"Day 5 — Workbook 2nd third",
-      tasks:[
-        wkDaily(),
-        wkLesson,
-        { id:"d4t1", name:"Workbook — middle ~30% of exercises", desc:"Continue the workbook. Next third of exercises. On paper. Check as you go.", tag:"genki" },
-        { id:"d4t3", name:"Quizlet: Test mode — previous chapter vocab", desc:"Previous chapter's Quizlet deck → Test mode → max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF.", tag:"review" },
-        { id:"d4t4", name:"Quizlet: Flashcards mode — current chapter vocab (10 min)", desc:"Quick flip through this chapter's vocab. See what's fading by end of week.", tag:"review" },
-      ],
-      links:[
-        prev1.vocab ? { label:"Prev Chapter Vocab →", url:prev1.vocab } : null,
-        prev1.kanji ? { label:"Prev Chapter Kanji →", url:prev1.kanji } : null,
-        prev1.conj ? { label:"Prev Chapter Conjugation →", url:prev1.conj } : null,
-        ql.vocab ? { label:"This Chapter Vocab →", url:ql.vocab } : null,
-      ].filter(Boolean),
-    },
-    { // Day 5 - Sat
-      label:"Day 6 — Workbook 3rd third + Review",
-      tasks:[
-        wkDaily("Reviews only — no new lessons today. Let items consolidate."),
-        { id:"d5t1", name:"Workbook — last ~30% of exercises", desc:"Final workbook exercises for this chapter, including the reading page. On paper.", tag:"genki" },
-        { id:"d5t2", name:"Quizlet: Test mode — this chapter vocab + kanji", desc:"Test mode: max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. Aim for 80%+. Below 70%? Do Flashcards for 10 min then retest.", tag:"review" },
-        { id:"d5t3", name:"Quizlet: Flashcards mode — 2 chapters ago (10 min)", desc:"Quick flip through ch N-2 vocab. Low friction — just keeping old material alive.", tag:"review" },
-        { id:"d5t4", name:"Speak: re-read full dialogue aloud, no audio", desc:"No audio. Just you reading out loud. Look up anything you forgot.", tag:"review" },
-      ],
-      links:[
-        ql.vocab ? { label:"This Chapter Vocab →", url:ql.vocab } : null,
-        ql.kanji ? { label:"This Chapter Kanji →", url:ql.kanji } : null,
-        prev2.vocab ? { label:"2 Chapters Ago →", url:prev2.vocab } : null,
-      ].filter(Boolean),
-    },
-    { // Day 6 - Sun
-      label:"Day 7 — Final Check",
-      tasks:[
-        wkDaily("Rest day for WK lessons. Reviews only — let your brain consolidate."),
-        { id:"d6t1", name:"Quizlet: Test mode — this chapter full sweep", desc:"Test mode: max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. Do vocab deck, then kanji deck if available, then conjugation deck if available.", tag:"review" },
-        { id:"d6t3", name:"Quizlet: Flashcards mode — last 2 chapters (10 min each)", desc:"Flashcards mode — quick flip, no scoring. Ch N-1 for 10 min, Ch N-2 for 10 min. Keeping old vocab alive.", tag:"review" },
-      ],
-      links:[
-        ql.vocab ? { label:"This Chapter Vocab →", url:ql.vocab } : null,
-        ql.kanji ? { label:"This Chapter Kanji →", url:ql.kanji } : null,
-        ql.conj ? { label:"This Chapter Conjugation →", url:ql.conj } : null,
-        prev1.vocab ? { label:"Ch N-1 Vocab →", url:prev1.vocab } : null,
-        prev2.vocab ? { label:"Ch N-2 Vocab →", url:prev2.vocab } : null,
-      ].filter(Boolean),
-    },
-  ];
-  return schedules[dayIdx % 7];
+  const flashcardsTask = {
+    id:"flashRev", name:"Quizlet: Flashcards mode — vocab (10 min)",
+    desc:"Quick flip through this chapter's vocab deck. Low friction — just keeping things warm.", tag:"review"
+  };
+  const baseVocabLink = ql.vocab ? { label:"Quizlet Vocab →", url:ql.vocab } : null;
+
+  const days = buildChapterDays(lesson);
+  const total = days.length;
+  const idx = Math.max(0, Math.min(dayIdx, total - 1));
+  const d = days[idx];
+
+  let label, tasks, links;
+
+  if (d.type === 'vocab1') {
+    label = `Day ${idx+1} — Vocabulary`;
+    tasks = [
+      wkDaily(),
+      wkLesson,
+      { id:"v1t1", name:"Read the vocabulary list out loud", desc:"Textbook vocab section. Don't try to memorize — just say each word 2× out loud. Exposure only.", tag:"genki" },
+      { id:"v1t2", name:"Watch the chapter dialogue video", desc:"Watch once without subtitles, then once with the book open. What do you catch?", tag:"genki" },
+      { id:"v1t3", name:"Quizlet: Learn mode (first exposure)", desc:"Use Learn mode — introduces cards one by one, mixes multiple choice and typing. Perfect for seeing vocab for the first time. 15–20 min.", tag:"review" },
+    ];
+    links = [baseVocabLink, ql.video ? { label:"Watch Dialogue →", url:ql.video } : null].filter(Boolean);
+
+  } else if (d.type === 'vocab2') {
+    label = `Day ${idx+1} — Vocabulary Review`;
+    tasks = [
+      wkDaily(),
+      wkLesson,
+      { id:"v2t1", name:"Re-watch dialogue video, follow with text", desc:"Play the video, follow the dialogue text in the book. Read out loud along with it.", tag:"genki" },
+      { id:"v2t2", name:"Quizlet: Flashcards mode — vocab (15 min)", desc:"Flashcards mode — flip through yourself, no help. You saw these yesterday — testing raw memory now.", tag:"review" },
+    ];
+    links = [baseVocabLink, ql.video ? { label:"Watch Dialogue →", url:ql.video } : null].filter(Boolean);
+
+  } else if (d.type === 'grammar') {
+    label = `Day ${idx+1} — Grammar Point ${d.num} of ${d.total}`;
+    tasks = [
+      wkDaily(),
+      wkLesson,
+      { id:`g${d.num}t1`, name:`Read Grammar Point ${d.num}`, desc:"Read the explanation slowly. Write 1–2 example sentences by hand in your notebook — don't type them.", tag:"genki" },
+      { id:`g${d.num}t2`, name:`Textbook: Practice exercise for Grammar Point ${d.num}`, desc:"Do the Practice exercise matching this grammar point. On paper. Check answers right after. Got more than 2 wrong? Re-read the explanation, then continue anyway.", tag:"genki" },
+    ];
+    if (d.reviewFlashcards) tasks.push(flashcardsTask);
+    if (d.isLastDay) {
+      tasks.push({ id:"testSweep", name:"Quizlet: Test mode — full chapter sweep", desc:"Test mode: max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. Vocab deck, then kanji, then conjugation if available.", tag:"review" });
+    }
+    links = [baseVocabLink, ql.kanji ? { label:"Quizlet Kanji →", url:ql.kanji } : null, ql.conj ? { label:"Quizlet Conjugation →", url:ql.conj } : null].filter(Boolean);
+
+  } else { // workbook
+    label = `Day ${idx+1} — Workbook Exercise ${d.num} of ${d.total}`;
+    tasks = [
+      wkDaily(d.num % 3 === 0 ? "Reviews only today if Apprentice >100. No new lessons." : null),
+      wkLesson,
+      { id:`w${d.num}t1`, name:`Workbook: Exercise ${d.num}`, desc:"Do this workbook exercise on paper. Check answers right after. If it's a listening exercise, use OTO Navi audio.", tag:"genki" },
+    ];
+    if (d.reviewFlashcards) tasks.push(flashcardsTask);
+    if (d.isLastDay) {
+      tasks.push({ id:"testSweep", name:"Quizlet: Test mode — full chapter sweep", desc:"Test mode: max questions, Multiple choice ON, Written ON, True/False OFF, Matching OFF. Vocab deck, then kanji, then conjugation if available.", tag:"review" });
+      tasks.push({ id:"prevReview", name:"Quizlet: Flashcards mode — previous chapter (10 min)", desc:"Quick flip through last chapter's vocab. Keeping old material alive before moving on.", tag:"review" });
+      tasks.push({ id:"speakDialogue", name:"Speak: re-read full dialogue aloud, no audio", desc:"No audio. Just you reading out loud. Look up anything you forgot. This is your chapter wrap-up.", tag:"review" });
+    }
+    links = [baseVocabLink, ql.kanji ? { label:"Quizlet Kanji →", url:ql.kanji } : null, ql.conj ? { label:"Quizlet Conjugation →", url:ql.conj } : null];
+    if (d.isLastDay && prev1.vocab) links.push({ label:"Prev Chapter Vocab →", url:prev1.vocab });
+    links = links.filter(Boolean);
+  }
+
+  return { label, tasks, links, totalDays: total };
 }
 
 // ── STATE ──
@@ -713,7 +735,8 @@ function getDayProg(lesson, day) {
 }
 function getChapterProg(lesson) {
   let done=0, total=0;
-  for(let d=0;d<7;d++){ const p=getDayProg(lesson,d); done+=p.done; total+=p.total; }
+  const numDays = buildChapterDays(lesson).length;
+  for(let d=0;d<numDays;d++){ const p=getDayProg(lesson,d); done+=p.done; total+=p.total; }
   return { done, total };
 }
 
@@ -768,9 +791,13 @@ function renderToday() {
   document.getElementById('ch-prev').disabled = state.lesson <= 1;
   document.getElementById('ch-next').disabled = state.lesson >= 23;
 
-  // Week strip
+  const numDays = buildChapterDays(state.lesson).length;
+  if (state.day >= numDays) state.day = numDays - 1;
+  if (state.day < 0) state.day = 0;
+
+  // Day strip (dynamic length, scrollable)
   const strip = document.getElementById('week-strip');
-  strip.innerHTML = DAY_NAMES.map((d,i) => {
+  strip.innerHTML = Array.from({length:numDays}, (_,i) => {
     const p = getDayProg(state.lesson, i);
     const isActive = i === state.day;
     const isComplete = p.done === p.total;
@@ -779,7 +806,7 @@ function renderToday() {
       return `<div class="pip${done?' done':(!isActive?'':' active-pip')}"></div>`;
     }).join('');
     return `<div class="day-pill${isActive?' active':''}${isComplete?' complete':''}" onclick="selectDay(${i})">
-      <div class="dp-name">${d}</div>
+      <div class="dp-name">D${i+1}</div>
       <div class="dp-pips">${pips}</div>
     </div>`;
   }).join('');
@@ -787,7 +814,7 @@ function renderToday() {
   // Day tasks
   const sched = getDaySchedule(state.lesson, state.day);
   const dp = getDayProg(state.lesson, state.day);
-  document.getElementById('day-label-text').textContent = `${DAY_NAMES[state.day]} · ${sched.label}`;
+  document.getElementById('day-label-text').textContent = `${sched.label} (Day ${state.day+1}/${sched.totalDays})`;
   document.getElementById('day-progress-text').textContent = `${dp.done} / ${dp.total} done`;
 
   const tagLabel = { wk:'WK', genki:'Genki', review:'Review' };
@@ -811,6 +838,25 @@ function renderToday() {
 }
 
 function selectDay(d) { state.day = d; save(); renderToday(); }
+
+function changeDay(dir) {
+  const numDays = buildChapterDays(state.lesson).length;
+  let newDay = state.day + dir;
+  if (newDay < 0) {
+    if (state.lesson > 1) {
+      state.lesson -= 1;
+      state.day = buildChapterDays(state.lesson).length - 1;
+    }
+  } else if (newDay >= numDays) {
+    if (state.lesson < 23) {
+      state.lesson += 1;
+      state.day = 0;
+    }
+  } else {
+    state.day = newDay;
+  }
+  save(); renderToday(); renderProgress();
+}
 
 // ── RENDER PROGRESS ──
 function renderProgress() {
